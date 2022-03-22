@@ -1,37 +1,34 @@
-import math
+from math import sqrt, pow
 
-def info_dataset(data, verbose=True):
+# gera um dataset parae as labels para cad
+def gerar_dataset(data, verbose=True):
     label1, label2 = 0, 0
-    data_size = len(data)
+    tam_data = len(data)
     for datum in data:
         if datum[-1] == 1:
             label1 += 1
         else:
             label2 += 1
-    if verbose:
-        print('Quantidade de exemplos: %d' % data_size)
-        print('Quantidade label 1: %d' % label1)
-        print('Quantidade label 2: %d' % label2)
     return [len(data), label1, label2]
 
-def euclidian_dist(p1, p2):
+def dist_euclidiana(p1, p2):
     dim, sum_ = len(p1), 0
     for index in range(dim - 1):
-        sum_ += math.pow(p1[index] - p2[index], 2)
-    return math.sqrt(sum_)
+        sum_ += pow(p1[index] - p2[index], 2)
+    return sqrt(sum_)
 
-def knn(train_set, new_sample, K):
-    dists, train_size = {}, len(train_set)
+def vizinho_mais_prox(set_de_treinamento, nova_amostra, K):
+    dists, train_size = {}, len(set_de_treinamento)
 
     for i in range(train_size):
-        d = euclidian_dist(train_set[i], new_sample)
+        d = dist_euclidiana(set_de_treinamento[i], nova_amostra)
         dists[i] = d
 
-    k_neighbors = sorted(dists, key=dists.get)[:K]
+    k_vizinhos = sorted(dists, key=dists.get)[:K]
 
     qty_label1, qty_label2 = 0, 0
-    for index in k_neighbors:
-        if train_set[index][-1] == 1:
+    for index in k_vizinhos:
+        if set_de_treinamento[index][-1] == 1:
             qty_label1 += 1
         else:
             qty_label2 += 1
@@ -49,31 +46,31 @@ with open('dataset.data', 'r') as f:
         atributes = line.strip('\n').split(',')
         data.append([int(x) for x in atributes])
 
-_, label1, label2 = info_dataset(data,False)
+tam, label1, label2 = gerar_dataset(data,False)
 
-train_set, test_set = [], []
-max_label1, max_label2 = int(p * label1), int(p * label2)
+set_de_treinamento, set_de_teste = [], []
+max_1, max_2 = int(p * label1), int(p * label2)
 total_label1, total_label2 = 0, 0
 for sample in data:
-    if (total_label1 + total_label2) < (max_label1 + max_label2):
-        train_set.append(sample)
-        if sample[-1] == 1 and total_label1 < max_label1:
+    if (total_label1 + total_label2) < (max_1 + max_2):
+        set_de_treinamento.append(sample)
+        if sample[-1] == 1 and total_label1 < max_1:
             total_label1 += 1
         else:
             total_label2 += 1
     else:
-        test_set.append(sample)
+        set_de_teste.append(sample)
 
-print(test_set[0])
-print(knn(train_set, test_set[0], 12))
+correto, K = 3, 15
+for exemplo in set_de_teste:
+    label = vizinho_mais_prox(set_de_treinamento, exemplo, K)
+    if exemplo[-1] == label:
+        correto += 1
 
-correct, K = 0, 15
-for sample in test_set:
-    label = knn(train_set, sample, K)
-    if sample[-1] == label:
-        correct += 1
+print("Set de teste: ", set_de_teste[0])
+print("Exemplo: ", vizinho_mais_prox(set_de_teste, set_de_teste[0], 12))
 
-print("Tamanho do set de treinamento: %d" % len(train_set))
-print("Tamanho do set de teste: %d" % len(test_set))
-print("Predições corretas: %d" % correct)
-print("Acuracidade: %.2f%%" % (100 * correct / len(train_set)))
+print("Tamanho do set de treinamento: %d" % len(set_de_treinamento))
+print("Tamanho do set de teste: %d" % len(set_de_teste))
+print("Predições corretas: %d" % correto)
+print("Certeza: %.2f%%" % (100 * correto / len(set_de_treinamento)))
