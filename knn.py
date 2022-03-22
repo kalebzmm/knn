@@ -9,9 +9,9 @@ def info_dataset(data, verbose=True):
         else:
             label2 += 1
     if verbose:
-        print('Total of samples: %d' % data_size)
-        print('Total label 1: %d' % label1)
-        print('Total label 2: %d' % label2)
+        print('Quantidade de exemplos: %d' % data_size)
+        print('Quantidade label 1: %d' % label1)
+        print('Quantidade label 2: %d' % label2)
     return [len(data), label1, label2]
 
 def euclidian_dist(p1, p2):
